@@ -1,0 +1,22 @@
+{
+  "name": "threaddigest",
+  "version": "1.0.0",
+  "description": "provides a short description of twitter threads using GPT-3 model",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mvnd06/ThreadDigest.git"
+  },
+  "author": "Armand Raynor",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mvnd06/ThreadDigest/issues"
+  },
+  "homepage": "https://github.com/mvnd06/ThreadDigest#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
