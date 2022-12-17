@@ -5,6 +5,9 @@
   </head>
   <body>
     <h1 class="title" style="text-align: center;">Welcome To Thread Digest</h1>
+    <h2>Summary</h2>
+    <%= message %>
+    <h2>Tweets</h2>
     <div class="search-container">
       <form action="/fetch-thread" method="post">
         <label for="thread-id">Thread ID:</label>
@@ -17,6 +20,5 @@
         <div class="tweet"><%= tweet.fullText %></div>
       <% }); %>
     </div>
-    <%= message %>
   </body>
 </html>

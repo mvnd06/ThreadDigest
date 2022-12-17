@@ -20,6 +20,7 @@ class GPT3MeaningFetcher {
 
     const completion = response.data.completion;
     const message = response.data.choices[0].text;
+    console.log(response.data.choices)
     return message.length > 0 ? message : "Error! No message returned";
   }
 }
