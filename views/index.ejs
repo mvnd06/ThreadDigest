@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <h1 class="title" style="text-align: center;">Welcome To Thread Digest</h1>
+    <div class="search-container">
+      <form action="/fetch-thread" method="post">
+        <label for="thread-id">Thread ID:</label>
+        <input type="text" class="thread-id" name="threadId" placeholder="Enter a thread ID">
+        <button type="submit">Fetch Thread</button>
+      </form>
+    </div>
+    <div class="tweet-list">
+      <% tweets.forEach((tweet) => { %>
+        <div class="tweet"><%= tweet.fullText %></div>
+      <% }); %>
+    </div>
+    <%= message %>
+  </body>
+</html>
