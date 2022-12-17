@@ -1,5 +1,5 @@
-const Twit = require('twit');
-const Tweet = require('./tweet');
+const Twit = require("twit");
+const Tweet = require("./tweet");
 
 class TwitterThreadFetcher {
   constructor(apiKey, apiSecret, accessToken, accessTokenSecret) {
@@ -7,7 +7,7 @@ class TwitterThreadFetcher {
       consumer_key: apiKey,
       consumer_secret: apiSecret,
       access_token: accessToken,
-      access_token_secret: accessTokenSecret
+      access_token_secret: accessTokenSecret,
     });
   }
 
@@ -15,9 +15,9 @@ class TwitterThreadFetcher {
     const tweets = [];
 
     while (tweetID) {
-      const { data } = await this.client.get('statuses/lookup', {
+      const { data } = await this.client.get("statuses/lookup", {
         id: tweetID,
-        tweet_mode: 'extended'
+        tweet_mode: "extended",
       });
       const tweet = new Tweet(data[0]);
       tweets.push(tweet);

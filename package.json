@@ -4,7 +4,7 @@
   "description": "provides a short description of twitter threads using GPT-3 model",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
