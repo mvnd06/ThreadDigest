@@ -3,3 +3,5 @@
 
 # But allow the .env.example file to be committed
 !.env.example
+
+.DS_Store

@@ -1,14 +1,19 @@
+//1601833608708325376
+
 const express = require("express");
 const ejs = require("ejs");
 const app = express();
 const path = require("path");
 const fs = require("fs");
-const dotenv = require("dotenv");
+const dotenv = require("dotenv").config();
 const bodyParser = require("body-parser");
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 const TwitterThreadFetcher = require("./twitter-thread-fetcher");
 const GPT3MeaningFetcher = require("./gpt3-meaning-fetcher");
+const TwitterBot = require("./twitter-bot");
+
+const { Autohook } = require('twitter-autohook');
 
 const apiKey = process.env.API_KEY;
 const apiSecret = process.env.API_SECRET;
@@ -44,6 +49,19 @@ app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
 
+app.all('/webhook/twitter', async (request, response) => {
+  // Fulfills the CRC check when Twitter sends a CRC challenge
+  if (request.query.crc_token) {
+    const signature = validateWebhook(request.query.crc_token, {consumer_secret: process.env.TWITTER_CONSUMER_SECRET});
+    response.json(signature);
+  } else {
+    // Send a successful response to Twitter
+    response.sendStatus(200);
+    // Add your logic to process the event
+    console.log('Received a webhook event:', request.body);
+  }
+});
+
 // Fetch Thread
 
 app.post("/fetch-thread", urlencodedParser, async (req, res) => {
@@ -62,6 +80,15 @@ app.post("/fetch-thread", urlencodedParser, async (req, res) => {
     const inputText = combineTweets(thread);
     const meaning = await meaningFetcher.getMeaning(inputText);
     res.render("index", { tweets: thread, message: meaning });
+
+    const bot = new TwitterBot(
+      apiKey,
+      apiSecret,
+      accessToken,
+      accessTokenSecret
+    );
+ 
+    bot.sendDM("@mvnd06", meaning)
   } catch (error) {
     console.error(error);
     res.status(500).send("An error occurred while fetching the thread");
