@@ -71,6 +71,7 @@ app.all("/webhook/twitter", function (request, response) {
     response.sendStatus(200);
     if (request.body.direct_message_events) {
       const [msg, sender] = getMessageAndSender(request.body.direct_message_events);
+      console.log('Received "' + msg + '" from: ' + sender);
       const message = generateMessageObject(msg, sender);
       sendMessage(message);
     }
@@ -87,8 +88,6 @@ function getMessageAndSender(events) {
   const messageEvent = events[0];
   const senderId = messageEvent.message_create.sender_id;
   const messageText = messageEvent.message_create.message_data.text;
-
-  console.log('Received "' + messageText + '" from: ' + senderId);
   return messageText, senderId;
 }
 
