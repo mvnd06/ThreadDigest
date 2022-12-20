@@ -67,7 +67,7 @@ app.all('/webhook/twitter', function(request, response) {
     })
   } else {
     response.sendStatus(200);
-    console.log('Received a webhook event:', request);
+    console.log('Received a webhook event:', request.body);
   }
 })
 
