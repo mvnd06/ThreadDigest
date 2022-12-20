@@ -7,7 +7,6 @@ const path = require("path");
 const fs = require("fs");
 require("dotenv").config();
 const bodyParser = require("body-parser");
-const urlencodedParser = bodyParser.urlencoded({ extended: false });
 const security = require('./security')
 
 const TwitterThreadFetcher = require("./twitter-thread-fetcher");
@@ -24,6 +23,11 @@ const accessToken = process.env.TWITTER_ACCESS_TOKEN;
 const accessTokenSecret = process.env.TWITTER_ACCESS_TOKEN_SECRET;
 const openAIKey = process.env.OPEN_AI_API_KEY;
 
+const urlencodedParser = bodyParser.urlencoded({ extended: false });
+const jsonParser = bodyParser.json();
+
+app.use(bodyParser);
+
 // Load Initial HTML and CSS
 
 // Set the view engine to ejs
@@ -31,6 +35,7 @@ app.set("view engine", "ejs");
 
 // Serve static files from the 'public' directory
 app.use(express.static(__dirname + "../public"));
+
 
 // Handle requests for the '/style.css' route
 app.get("/style.css", (req, res) => {
@@ -57,7 +62,7 @@ const manager = WebhookManager.getManager()
 manager.createWebhook();
 
 // Receives challenges from CRC check
-app.all('/webhook/twitter', function(request, response) {
+app.all('/webhook/twitter', jsonParser, function(request, response) {
   var crc_token = request.query.crc_token
   if (crc_token) {
     var hash = security.get_challenge_response(crc_token, apiSecret)
