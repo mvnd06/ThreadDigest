@@ -1,24 +1,28 @@
 //1601833608708325376
 
 const express = require("express");
-const ejs = require("ejs");
 const app = express();
+const ejs = require("ejs");
 const path = require("path");
 const fs = require("fs");
-const dotenv = require("dotenv").config();
+require("dotenv").config();
 const bodyParser = require("body-parser");
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
+const security = require('./security')
 
 const TwitterThreadFetcher = require("./twitter-thread-fetcher");
 const GPT3MeaningFetcher = require("./gpt3-meaning-fetcher");
 const TwitterBot = require("./twitter-bot");
 
+const WebhookManager = require("./webhook-manager.js")
+manager = new WebhookManager().createWebhook();
+
 const { Autohook } = require('twitter-autohook');
 
-const apiKey = process.env.API_KEY;
-const apiSecret = process.env.API_SECRET;
-const accessToken = process.env.ACCESS_TOKEN;
-const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
+const apiKey = process.env.TWITTER_CONSUMER_KEY;
+const apiSecret = process.env.TWITTER_CONSUMER_SECRET;
+const accessToken = process.env.TWITTER_ACCESS_TOKEN;
+const accessTokenSecret = process.env.TWITTER_ACCESS_TOKEN_SECRET;
 const openAIKey = process.env.OPEN_AI_API_KEY;
 
 // Load Initial HTML and CSS
@@ -49,18 +53,24 @@ app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
 
-app.all('/webhook/twitter', async (request, response) => {
-  // Fulfills the CRC check when Twitter sends a CRC challenge
-  if (request.query.crc_token) {
-    const signature = validateWebhook(request.query.crc_token, {consumer_secret: process.env.TWITTER_CONSUMER_SECRET});
-    response.json(signature);
+// Receives challenges from CRC check
+app.get('/webhook/twitter', function(request, response) {
+  console.log('received CRC challenge');
+  var crc_token = request.query.crc_token
+
+  if (crc_token) {
+    var hash = security.get_challenge_response(crc_token, apiSecret)
+
+    response.status(200);
+    response.send({
+      response_token: 'sha256=' + hash
+    })
   } else {
-    // Send a successful response to Twitter
-    response.sendStatus(200);
-    // Add your logic to process the event
-    console.log('Received a webhook event:', request.body);
+    response.status(400);
+    response.send('Error: crc_token missing from request.')
   }
-});
+})
+
 
 // Fetch Thread
 
