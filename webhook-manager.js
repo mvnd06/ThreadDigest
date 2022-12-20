@@ -94,7 +94,7 @@ class WebhookManager {
   }
 
   deleteWebhookIfNeeded() {
-    this.getWebhook((webhook_id) => {  
+    this.id = this.getWebhook((webhook_id) => {  
       console.log("Deleting webhook:", webhook_id);
 
       var request_options = {
@@ -107,7 +107,8 @@ class WebhookManager {
         oauth: this.auth,
         resolveWithFullResponse: true,
       };
-      return request.delete(request_options);
+      request.delete(request_options);
+      return null;
     });
   }
 }
