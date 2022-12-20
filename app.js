@@ -32,6 +32,10 @@ app.listen(port, () => {
 // Create webhooks
 const manager = WebhookManager.getManager();
 manager.createWebhook();
+sendWelcomeMessage(
+  "Hello, I'm the DM Genie! I'm powered by OpenAI's natural language models. I can respond " +
+    "to direct instructions and function well with examples. I can also make simple conversation. Let's chat!"
+);
 
 // Receives challenges from CRC check + updates to data
 app.all("/webhook/twitter", function (request, response) {
@@ -45,7 +49,7 @@ app.all("/webhook/twitter", function (request, response) {
   } else {
     response.sendStatus(200);
     if (request.body.direct_message_events) {
-      processDMEvent(request.body.direct_message_events)
+      processDMEvent(request.body.direct_message_events);
     }
   }
 });
@@ -53,7 +57,7 @@ app.all("/webhook/twitter", function (request, response) {
 // Direct Messages
 
 async function processDMEvent(event) {
-  const {messageText: message, senderId: sender} = getMessageAndSender(event);
+  const { messageText: message, senderId: sender } = getMessageAndSender(event);
   console.log('Received "' + message + '" from: ' + sender);
 
   const gpt3Fetcher = new GPT3Fetcher(openAIKey);
@@ -75,22 +79,22 @@ function getMessageAndSender(events) {
 function generateMessageObject(text, recipientId) {
   return {
     event: {
-      type: 'message_create',
+      type: "message_create",
       message_create: {
         target: {
-          recipient_id: recipientId
+          recipient_id: recipientId,
         },
         message_data: {
-          text: text
-        }
-      }
-    }
+          text: text,
+        },
+      },
+    },
   };
 }
 
 function sendMessage(body) {
   var request_options = {
-    url: 'https://api.twitter.com/1.1/direct_messages/events/new.json',
+    url: "https://api.twitter.com/1.1/direct_messages/events/new.json",
     oauth: {
       consumer_key: process.env.TWITTER_CONSUMER_KEY,
       consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
@@ -99,30 +103,29 @@ function sendMessage(body) {
     },
     json: true,
     headers: {
-      'content-type': 'application/json'
+      "content-type": "application/json",
     },
-    body: body
-  }
-  
+    body: body,
+  };
+
   // POST request to send Direct Message
   request.post(request_options, function (error, response, body) {
-    console.log(body)
-  })
+    console.log(body);
+  });
 }
 
 function sendWelcomeMessage(text) {
-
   const message = {
     welcome_message: {
-      name: 'welcome message',
+      name: "welcome message",
       message_data: {
-        text: text
-      }
-    }
-  }
+        text: text,
+      },
+    },
+  };
 
   var request_options = {
-    url: 'https://api.twitter.com/1.1/direct_messages/welcome_messages/new.json',
+    url: "https://api.twitter.com/1.1/direct_messages/welcome_messages/new.json",
     oauth: {
       consumer_key: process.env.TWITTER_CONSUMER_KEY,
       consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
@@ -131,15 +134,15 @@ function sendWelcomeMessage(text) {
     },
     json: true,
     headers: {
-      'content-type': 'application/json'
+      "content-type": "application/json",
     },
-    body: message
-  }
-  
+    body: message,
+  };
+
   // POST request to send Direct Message
   request.post(request_options, function (error, response, body) {
-    console.log(body)
-  })
+    console.log(body);
+  });
 }
 
 // Fetch Thread
