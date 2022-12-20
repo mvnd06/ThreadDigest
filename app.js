@@ -15,7 +15,6 @@ const GPT3MeaningFetcher = require("./gpt3-meaning-fetcher");
 const TwitterBot = require("./twitter-bot");
 
 const WebhookManager = require("./webhook-manager.js")
-manager = new WebhookManager().createWebhook();
 
 const { Autohook } = require('twitter-autohook');
 
@@ -52,6 +51,9 @@ const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
+
+// Create webhooks
+WebhookManager.getManager().createWebhook();
 
 // Receives challenges from CRC check
 app.get('/webhook/twitter', function(request, response) {

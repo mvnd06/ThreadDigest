@@ -3,6 +3,16 @@ const request = require("request-promise");
 require("dotenv").config();
 
 class WebhookManager {
+
+  static manager;
+
+  static getManager() {
+    if (!WebhookManager.manager) {
+      WebhookManager.manager = new WebhookManager();
+    }
+    return WebhookManager.manager;
+  }
+
   constructor() {
     this.auth = {
       consumer_key: process.env.TWITTER_CONSUMER_KEY,
