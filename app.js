@@ -7,6 +7,7 @@ const ejs = require("ejs");
 const path = require("path");
 const fs = require("fs");
 const security = require("./security");
+const request = require("request-promise");
 
 const TwitterThreadFetcher = require("./twitter-thread-fetcher");
 const GPT3MeaningFetcher = require("./gpt3-meaning-fetcher");
@@ -70,9 +71,13 @@ app.all("/webhook/twitter", function (request, response) {
     response.sendStatus(200);
     if (request.body.direct_message_events) {
       getMessageAndSender(request.body.direct_message_events);
+      message = generateMessageObject(messageText, senderId);
+      sendMessage(message);
     }
   }
 });
+
+// Direct Messages
 
 function getMessageAndSender(events) {
   if (!events || events.length < 0) {
@@ -84,6 +89,44 @@ function getMessageAndSender(events) {
   const messageText = messageEvent.message_create.message_data.text;
 
   console.log('Received "' + messageText + '" from: ' + senderId);
+}
+
+function generateMessageObject(text, recipientId) {
+  return {
+    event: {
+      type: 'message_create',
+      message_create: {
+        target: {
+          recipient_id: recipientId
+        },
+        message_data: {
+          text: text
+        }
+      }
+    }
+  };
+}
+
+function sendMessage(body) {
+  var request_options = {
+    url: 'https://api.twitter.com/1.1/direct_messages/events/new.json',
+    oauth: {
+      consumer_key: process.env.TWITTER_CONSUMER_KEY,
+      consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+      token: process.env.TWITTER_ACCESS_TOKEN,
+      token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
+    },
+    json: true,
+    headers: {
+      'content-type': 'application/json'
+    },
+    body: body
+  }
+  
+  // POST request to send Direct Message
+  request.post(request_options, function (error, response, body) {
+    console.log(body)
+  })
 }
 
 // Fetch Thread
