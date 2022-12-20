@@ -26,7 +26,7 @@ const openAIKey = process.env.OPEN_AI_API_KEY;
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 const jsonParser = bodyParser.json();
 
-app.use(bodyParser);
+app.use(jsonParser);
 
 // Load Initial HTML and CSS
 
@@ -62,7 +62,7 @@ const manager = WebhookManager.getManager()
 manager.createWebhook();
 
 // Receives challenges from CRC check
-app.all('/webhook/twitter', jsonParser, function(request, response) {
+app.all('/webhook/twitter', function(request, response) {
   var crc_token = request.query.crc_token
   if (crc_token) {
     var hash = security.get_challenge_response(crc_token, apiSecret)
@@ -75,7 +75,6 @@ app.all('/webhook/twitter', jsonParser, function(request, response) {
     console.log('Received a webhook event:', request.body);
   }
 })
-
 
 // Fetch Thread
 
