@@ -11,11 +11,12 @@ class GPT3Fetcher {
     const response = await this.openai.createCompletion({
       model: "text-davinci-003",
       prompt: inputText,
-	  temperature: 0.7,
-	  max_tokens: 60,
+	  temperature: 0.9,
+	  max_tokens: 150,
 	  top_p: 1,
-	  frequency_penalty: 0,
-	  presence_penalty: 1,
+	  frequency_penalty: 0.0,
+	  presence_penalty: 0.6,
+    stop: [" Human:", " AI:"],
     })
 
     const completion = response.data.completion;
