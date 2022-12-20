@@ -53,23 +53,22 @@ app.listen(port, () => {
 });
 
 // Create webhooks
-WebhookManager.getManager().createWebhook();
+const manager = WebhookManager.getManager()
+manager.createWebhook();
+manager.addSubscription();
 
 // Receives challenges from CRC check
-app.get('/webhook/twitter', function(request, response) {
-  console.log('received CRC challenge');
+app.all('/webhook/twitter', function(request, response) {
   var crc_token = request.query.crc_token
-
   if (crc_token) {
     var hash = security.get_challenge_response(crc_token, apiSecret)
-
     response.status(200);
     response.send({
       response_token: 'sha256=' + hash
     })
   } else {
-    response.status(400);
-    response.send('Error: crc_token missing from request.')
+    response.sendStatus(200);
+    console.log('Received a webhook event:', request.body);
   }
 })
 

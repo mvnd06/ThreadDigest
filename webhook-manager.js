@@ -3,7 +3,6 @@ const request = require("request-promise");
 require("dotenv").config();
 
 class WebhookManager {
-
   static manager;
 
   static getManager() {
@@ -46,7 +45,7 @@ class WebhookManager {
     this.id = request
       .post(request_options)
       .then(function (body) {
-        console.log('Successfully created webhook: ' + body.id);
+        console.log("Successfully created webhook: " + body.id);
         return body.id;
       })
       .catch(function (error) {
@@ -76,7 +75,7 @@ class WebhookManager {
     this.id = request
       .get(request_options)
       .then(function (body) {
-        if (body == '[]') {
+        if (body == "[]") {
           console.log("No exisiting webhooks found");
           return null;
         }
@@ -94,7 +93,7 @@ class WebhookManager {
   }
 
   deleteWebhookIfNeeded() {
-    this.id = this.getWebhook((webhook_id) => {  
+    this.id = this.getWebhook((webhook_id) => {
       console.log("Deleting webhook:", webhook_id);
 
       var request_options = {
@@ -110,6 +109,36 @@ class WebhookManager {
       request.delete(request_options);
       return null;
     });
+  }
+
+  addSubscription() {
+    var request_options = {
+      url:
+        "https://api.twitter.com/1.1/account_activity/all/" +
+        this.env +
+        "/subscriptions.json",
+      oauth: this.auth,
+      resolveWithFullResponse: true,
+    };
+
+    request
+      .post(request_options)
+      .then(function (response) {
+        console.log("HTTP response code:", response.statusCode);
+
+        if (response.statusCode == 204) {
+          console.log("Subscription added.");
+        }
+      })
+      .catch(function (response) {
+        console.log("Subscription was not able to be added.");
+        console.log("- Verify environment name.");
+        console.log(
+          '- Verify "Read, Write and Access direct messages" is enabled on apps.twitter.com.'
+        );
+        console.log("Full error message below:");
+        console.log(response.error);
+      });
   }
 }
 
