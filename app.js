@@ -68,31 +68,22 @@ app.all("/webhook/twitter", function (request, response) {
     });
   } else {
     response.sendStatus(200);
-
-    console.log(getMessageAndSender(request.body));
+    if (request.body.direct_message_events) {
+      getMessageAndSender(request.body.direct_message_events);
+    }
   }
 });
 
-function getMessageAndSender(payload) {
-  if (
-    payload[0].direct_message_events &&
-    payload[0].direct_message_events.length > 0
-  ) {
-    const messageEvent = payload[0].direct_message_events[0];
-    const senderId = messageEvent.message_create.sender_id;
-    const sender = payload[0].users[senderId];
-    const messageText = messageEvent.message_data.text;
-
-    return {
-      sender: sender.screen_name,
-      message: messageText,
-    };
-  } else {
-    return {
-      sender: null,
-      message: null,
-    };
+function getMessageAndSender(events) {
+  if (!events || events.length < 0) {
+    return;
   }
+
+  const messageEvent = events[0];
+  const senderId = messageEvent.message_create.sender_id;
+  const messageText = messageEvent.message_data.text;
+
+  console.log('Received ' + messageText + 'from: ' + senderId);
 }
 
 // Fetch Thread
