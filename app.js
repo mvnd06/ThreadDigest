@@ -78,7 +78,7 @@ function getMessageAndSender(events) {
   if (!events || events.length < 0) {
     return;
   }
-
+  console.log(events);
   const messageEvent = events[0];
   const senderId = messageEvent.message_create.sender_id;
   const messageText = messageEvent.message_data.text;
