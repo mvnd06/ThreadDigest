@@ -70,8 +70,8 @@ app.all("/webhook/twitter", function (request, response) {
   } else {
     response.sendStatus(200);
     if (request.body.direct_message_events) {
-      getMessageAndSender(request.body.direct_message_events);
-      message = generateMessageObject(messageText, senderId);
+      const [msg, sender] = getMessageAndSender(request.body.direct_message_events);
+      const message = generateMessageObject(msg, sender);
       sendMessage(message);
     }
   }
@@ -89,6 +89,7 @@ function getMessageAndSender(events) {
   const messageText = messageEvent.message_create.message_data.text;
 
   console.log('Received "' + messageText + '" from: ' + senderId);
+  return messageText, senderId;
 }
 
 function generateMessageObject(text, recipientId) {
