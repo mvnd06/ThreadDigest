@@ -3,9 +3,6 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
-const ejs = require("ejs");
-const path = require("path");
-const fs = require("fs");
 const security = require("./security");
 const request = require("request-promise");
 
@@ -25,28 +22,6 @@ const bodyParser = require("body-parser");
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 const jsonParser = bodyParser.json();
 app.use(jsonParser);
-
-// Load Initial HTML and CSS
-
-// Set the view engine to ejs
-app.set("view engine", "ejs");
-
-// Serve static files from the 'public' directory
-app.use(express.static(__dirname + "../public"));
-
-// Handle requests for the '/style.css' route
-app.get("/style.css", (req, res) => {
-  fs.readFile(__dirname + "/style.css", (err, data) => {
-    if (err) throw err;
-    res.setHeader("Content-Type", "text/css");
-    res.send(data);
-  });
-});
-
-// Handle requests for the '/' route
-app.get("/", (req, res) => {
-  res.render("index", { tweets: [], message: "" });
-});
 
 // Start the server
 const port = process.env.PORT || 3000;
@@ -127,6 +102,38 @@ function sendMessage(body) {
       'content-type': 'application/json'
     },
     body: body
+  }
+  
+  // POST request to send Direct Message
+  request.post(request_options, function (error, response, body) {
+    console.log(body)
+  })
+}
+
+function sendWelcomeMessage(text) {
+
+  const message = {
+    welcome_message: {
+      name: 'welcome message',
+      message_data: {
+        text: text
+      }
+    }
+  }
+
+  var request_options = {
+    url: 'https://api.twitter.com/1.1/direct_messages/welcome_messages/new.json',
+    oauth: {
+      consumer_key: process.env.TWITTER_CONSUMER_KEY,
+      consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+      token: process.env.TWITTER_ACCESS_TOKEN,
+      token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
+    },
+    json: true,
+    headers: {
+      'content-type': 'application/json'
+    },
+    body: message
   }
   
   // POST request to send Direct Message

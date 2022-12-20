@@ -48,7 +48,7 @@ class WebhookManager {
         console.log("Successfully created webhook: " + body.id);
         return body.id;
       })
-      .then(body => {
+      .then((body) => {
         this.addSubscription();
       })
       .catch(function (error) {
