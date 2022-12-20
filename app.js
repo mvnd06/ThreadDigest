@@ -55,7 +55,6 @@ app.listen(port, () => {
 // Create webhooks
 const manager = WebhookManager.getManager()
 manager.createWebhook();
-manager.addSubscription();
 
 // Receives challenges from CRC check
 app.all('/webhook/twitter', function(request, response) {
