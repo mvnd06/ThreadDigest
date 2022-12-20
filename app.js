@@ -13,8 +13,6 @@ const GPT3MeaningFetcher = require("./gpt3-meaning-fetcher");
 const TwitterBot = require("./twitter-bot");
 const WebhookManager = require("./webhook-manager.js");
 
-const { Autohook } = require("twitter-autohook");
-
 const apiKey = process.env.TWITTER_CONSUMER_KEY;
 const apiSecret = process.env.TWITTER_CONSUMER_SECRET;
 const accessToken = process.env.TWITTER_ACCESS_TOKEN;
