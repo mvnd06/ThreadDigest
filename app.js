@@ -83,7 +83,7 @@ function getMessageAndSender(events) {
   const senderId = messageEvent.message_create.sender_id;
   const messageText = messageEvent.message_create.message_data.text;
 
-  console.log('Received ' + messageText + 'from: ' + senderId);
+  console.log('Received "' + messageText + '" from: ' + senderId);
 }
 
 // Fetch Thread
