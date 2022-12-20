@@ -21,12 +21,11 @@ class WebhookManager {
       token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
     };
     this.env = process.env.TWITTER_WEBHOOK_ENV;
+    this.id = null;
   }
 
   createWebhook() {
     this.deleteWebhookIfNeeded();
-    console.log("Creating web hook");
-
     // request options
     var request_options = {
       url:
@@ -44,18 +43,27 @@ class WebhookManager {
     };
 
     // POST request to create webhook config
-    request
+    this.id = request
       .post(request_options)
       .then(function (body) {
-        console.log('Successfully created webhook!');
-        console.log(body);
+        console.log('Successfully created webhook: ' + body.id);
+        return body.id;
       })
       .catch(function (error) {
         console.error(error);
+        return null;
       });
   }
 
   getWebhook(callback) {
+    if (this.id) {
+      console.log("No request needed, found: " + this.id);
+      if (callback) {
+        callback(this.id);
+      }
+      return this.id;
+    }
+
     var request_options = {
       url:
         "https://api.twitter.com/1.1/account_activity/all/" +
@@ -65,27 +73,29 @@ class WebhookManager {
     };
 
     // GET request to retreive webhook config
-    request
+    this.id = request
       .get(request_options)
       .then(function (body) {
         if (body == '[]') {
           console.log("No exisiting webhooks found");
-          return;
+          return null;
         }
-        console.log("Found Webhook: " + body);
+        const id = JSON.parse(body)[0].id;
+        console.log("Found webhook: " + id);
         if (callback) {
-          callback(body);
+          callback(id);
         }
+        return id;
       })
       .catch(function (error) {
         console.log(error);
+        return null;
       });
   }
 
   deleteWebhookIfNeeded() {
-    this.getWebhook((response) => {
-      var webhook_id = JSON.parse(response)[0].id;
-      console.log("Deleting webhook config:", webhook_id);
+    this.getWebhook((webhook_id) => {  
+      console.log("Deleting webhook:", webhook_id);
 
       var request_options = {
         url:
