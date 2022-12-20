@@ -1,12 +1,12 @@
 const { Configuration, OpenAIApi } = require("openai");
 
-class GPT3MeaningFetcher {
+class GPT3Fetcher {
   constructor(apiKey) {
     this.configuration = new Configuration({ apiKey });
     this.openai = new OpenAIApi(this.configuration);
   }
 
-  async getMeaning(inputText) {
+  async getReply(inputText) {
     // Use the OpenAI API to generate a response based on the input text
     const response = await this.openai.createCompletion({
       model: "text-davinci-003",
@@ -24,4 +24,4 @@ class GPT3MeaningFetcher {
   }
 }
 
-module.exports = GPT3MeaningFetcher;
+module.exports = GPT3Fetcher;

@@ -10,7 +10,7 @@ const security = require("./security");
 const request = require("request-promise");
 
 const TwitterThreadFetcher = require("./twitter-thread-fetcher");
-const GPT3MeaningFetcher = require("./gpt3-meaning-fetcher");
+const GPT3Fetcher = require("./gpt3-fetcher");
 const TwitterBot = require("./twitter-bot");
 const WebhookManager = require("./webhook-manager.js");
 
@@ -70,21 +70,27 @@ app.all("/webhook/twitter", function (request, response) {
   } else {
     response.sendStatus(200);
     if (request.body.direct_message_events) {
-      const {messageText: msg, senderId: sender} = getMessageAndSender(request.body.direct_message_events);
-      console.log('Received "' + msg + '" from: ' + sender);
-      const message = generateMessageObject(msg, sender);
-      sendMessage(message);
+      processDMEvent(request.body.direct_message_events)
     }
   }
 });
 
 // Direct Messages
 
+async function processDMEvent(event) {
+  const {messageText: message, senderId: sender} = getMessageAndSender(event);
+  console.log('Received "' + message + '" from: ' + sender);
+
+  const gpt3Fetcher = new GPT3Fetcher(openAIKey);
+  const replyText = await gpt3Fetcher.getReply(message);
+  const reply = generateMessageObject(replyText, sender);
+  sendMessage(reply);
+}
+
 function getMessageAndSender(events) {
   if (!events || events.length < 0) {
     return;
   }
-  console.log(events);
   const messageEvent = events[0];
   const senderId = messageEvent.message_create.sender_id;
   const messageText = messageEvent.message_create.message_data.text;
@@ -143,7 +149,7 @@ app.post("/fetch-thread", urlencodedParser, async (req, res) => {
     const threadId = req.body.threadId;
     const thread = await threadFetcher.fetchThread(threadId);
 
-    const meaningFetcher = new GPT3MeaningFetcher(openAIKey);
+    const meaningFetcher = new GPT3Fetcher(openAIKey);
     const inputText = combineTweets(thread);
     const meaning = await meaningFetcher.getMeaning(inputText);
     res.render("index", { tweets: thread, message: meaning });
