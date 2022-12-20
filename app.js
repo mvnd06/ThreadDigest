@@ -1,21 +1,19 @@
 //1601833608708325376
 
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const ejs = require("ejs");
 const path = require("path");
 const fs = require("fs");
-require("dotenv").config();
-const bodyParser = require("body-parser");
-const security = require('./security')
+const security = require("./security");
 
 const TwitterThreadFetcher = require("./twitter-thread-fetcher");
 const GPT3MeaningFetcher = require("./gpt3-meaning-fetcher");
 const TwitterBot = require("./twitter-bot");
+const WebhookManager = require("./webhook-manager.js");
 
-const WebhookManager = require("./webhook-manager.js")
-
-const { Autohook } = require('twitter-autohook');
+const { Autohook } = require("twitter-autohook");
 
 const apiKey = process.env.TWITTER_CONSUMER_KEY;
 const apiSecret = process.env.TWITTER_CONSUMER_SECRET;
@@ -23,9 +21,10 @@ const accessToken = process.env.TWITTER_ACCESS_TOKEN;
 const accessTokenSecret = process.env.TWITTER_ACCESS_TOKEN_SECRET;
 const openAIKey = process.env.OPEN_AI_API_KEY;
 
+// Configure parsing
+const bodyParser = require("body-parser");
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 const jsonParser = bodyParser.json();
-
 app.use(jsonParser);
 
 // Load Initial HTML and CSS
@@ -35,7 +34,6 @@ app.set("view engine", "ejs");
 
 // Serve static files from the 'public' directory
 app.use(express.static(__dirname + "../public"));
-
 
 // Handle requests for the '/style.css' route
 app.get("/style.css", (req, res) => {
@@ -58,23 +56,23 @@ app.listen(port, () => {
 });
 
 // Create webhooks
-const manager = WebhookManager.getManager()
+const manager = WebhookManager.getManager();
 manager.createWebhook();
 
-// Receives challenges from CRC check
-app.all('/webhook/twitter', function(request, response) {
-  var crc_token = request.query.crc_token
+// Receives challenges from CRC check + updates to data
+app.all("/webhook/twitter", function (request, response) {
+  var crc_token = request.query.crc_token;
   if (crc_token) {
-    var hash = security.get_challenge_response(crc_token, apiSecret)
+    var hash = security.get_challenge_response(crc_token, apiSecret);
     response.status(200);
     response.send({
-      response_token: 'sha256=' + hash
-    })
+      response_token: "sha256=" + hash,
+    });
   } else {
     response.sendStatus(200);
-    console.log('Received a webhook event:', request.body);
+    console.log("Received a webhook event:", request.body);
   }
-})
+});
 
 // Fetch Thread
 
@@ -101,8 +99,8 @@ app.post("/fetch-thread", urlencodedParser, async (req, res) => {
       accessToken,
       accessTokenSecret
     );
- 
-    bot.sendDM("@mvnd06", meaning)
+
+    bot.sendDM("@mvnd06", meaning);
   } catch (error) {
     console.error(error);
     res.status(500).send("An error occurred while fetching the thread");
